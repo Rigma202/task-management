@@ -14,6 +14,18 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
+    public function index(Request $request): View
+    {
+        if(Auth::check() && Auth::user()->role=='admin'){
+            return view('Admin.dashboard');
+
+        }else if(Auth::check() && Auth::user()->role=='user'){
+            return view('dashboard');
+        }
+        else{
+            return view('/');
+        }
+    }
     public function edit(Request $request): View
     {
         return view('profile.edit', [
