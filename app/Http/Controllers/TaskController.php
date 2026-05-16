@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Services\TaskService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Resources\TaskResource;
+use App\Http\Requests\TaskRequest;
 class TaskController extends Controller
 {
     public function __construct(private TaskService $taskService) {}
@@ -13,23 +14,15 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        $tasks = $this->taskService->getAllTasks(); // Assuming you have a `getAll` method in your repository
-        return response()->json(['data' => $tasks]);
+        $tasks = $this->taskService->getAllTasks(); 
+        return TaskResource::collection($tasks);
     }
 
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'priority' => 'required|in:Low,Medium,High',
-            'due_date' => 'nullable|date',
-            'assigned_to' => 'nullable|integer|exists:users,id',
-        ]);
-
+        $validated = $request->validated();
         $validated['user_id'] = Auth::id();
-
         try {
             $task = $this->taskService->store($validated);
 

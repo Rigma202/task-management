@@ -1,28 +1,46 @@
 
 const API_BASE = '/api';
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
+let tasks = [];
+const TASK_STATUS = {
 
+    PENDING: 'pending',
+
+    IN_PROGRESS: 'in_progress',
+
+    COMPLETED: 'completed'
+};
+
+const TASK_PRIORITY = {
+
+    LOW: 'low',
+
+    MEDIUM: 'medium',
+
+    HIGH: 'high'
+};
 function renderTasks(list) {
   const grid = document.getElementById('task-grid');
-  const totalTasks = list.data.length;
-  const completedTasks = list.data.filter(task => task.status === 'completed').length;
-  const inProgressTasks = list.data.filter(task => task.status === 'pending').length;
-  const highPriorityTasks = list.data.filter(task => task.priority === 'high').length;
+  const totalTasks = list.length;
+  
+  const completedTasks = list.filter(task => task.status.value === TASK_STATUS.COMPLETED).length;
+  const inPendingTasks = list.filter(task => task.status.value === TASK_STATUS.PENDING).length;
+  const highPriorityTasks = list.filter(task => task.priority.value === TASK_PRIORITY.HIGH).length;
 
   document.getElementById('total-tasks-count').textContent = totalTasks;
   document.getElementById('completed-tasks-count').textContent = completedTasks;
-  document.getElementById('pending-tasks-count').textContent = inProgressTasks;
+  document.getElementById('pending-tasks-count').textContent = inPendingTasks;
   document.getElementById('high-priority-tasks-count').textContent = highPriorityTasks;
 
-  if (!list.data.length) {
+  if (!list.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px;font-size:14px">No tasks found.</div>';
     return;
   }
-  grid.innerHTML = list.data.map(t => {
-    const pClass = t.priority === 'high' ? 'badge-red' : t.priority === 'medium' ? 'badge-yellow' : 'badge-green';
-    const sClass = t.status === 'completed' ? 'badge-green' : t.status === 'in progress' ? 'badge-blue' : 'badge-yellow';
-    const pfClass = t.priority === 'high' ? 'priority-high' : t.priority === 'medium' ? 'priority-medium' : 'priority-low';
-    const done = t.status === 'completed';
+  grid.innerHTML = list.map(t => {
+    const pClass = t.priority.value;
+    const sClass = t.status.value;
+    const pfClass = t.priority.value;
+    const done = t.status.value === TASK_STATUS.COMPLETED;
     return `<div class="task-card" data-id="${t.id}">
       <div class="task-card-header">
         <div class="task-status-dot ${done ? 'done' : ''}">
@@ -32,8 +50,8 @@ function renderTasks(list) {
       </div>
       <div class="task-title">${t.title}</div>
       <div class="task-badges">
-        <span class="badge ${sClass}">${t.status}</span>
-        <span class="badge ${pClass}">Priority ${t.priority}</span>
+        <span class="badge ${sClass}">${t.status.label}</span>
+        <span class="badge ${pClass}">Priority ${t.priority.label}</span>
       </div>
       <div class="task-desc">${t.description.substring(0, 90)}…</div>
       <div class="task-meta">
@@ -41,7 +59,7 @@ function renderTasks(list) {
         <span>📅 Due ${t.due_date || '—'}</span>
       </div>
       <div class="task-footer">
-        <span class="priority-badge ${pfClass}">${t.priority}</span>
+        <span class="priority-badge ${pfClass}">${t.priority.label}</span>
         <div class="task-actions">
           <button class="task-btn task-btn-outline" onclick="openEdit(${t.id})">Edit</button>
           <button class="task-btn task-btn-fill" onclick="openView(${t.id})">View</button>
@@ -56,7 +74,7 @@ function filterTasks() {
   const s = document.getElementById('status-filter').value;
   const p = document.getElementById('priority-filter').value;
   const filtered = tasks.filter(t =>
-    (t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q)) &&
+    (t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)) &&
     (!s || t.status === s) &&
     (!p || t.priority === p)
   );
@@ -85,14 +103,12 @@ function openView(id) {
   if (!t) return;
   currentViewId = id;
   document.getElementById('view-modal-title').textContent = t.title;
-  const pClass = t.priority === 'High' ? 'badge-red' : t.priority === 'Medium' ? 'badge-yellow' : 'badge-green';
-  const sClass = t.status === 'Completed' ? 'badge-green' : t.status === 'In Progress' ? 'badge-blue' : 'badge-yellow';
+  const pClass = t.priority.value;
+  const sClass = t.status.value;
   document.getElementById('view-modal-badges').innerHTML =
-    `<span class="badge ${sClass}">${t.status}</span><span class="badge ${pClass}">Priority ${t.priority}</span>`;
-  document.getElementById('view-assigned').textContent = t.assigned;
-  document.getElementById('view-due').textContent = t.due;
-  document.getElementById('view-desc').textContent = t.desc;
-  document.getElementById('view-ai-summary').textContent = t.ai;
+    `<span class="badge ${sClass}">${t.status.label}</span><span class="badge ${pClass}">Priority ${t.priority.label}</span>`;
+  document.getElementById('view-assigned').textContent = t.assigned_to;
+  document.getElementById('view-due').textContent = t.due_date;
   openModal('view-modal');
 }
 
@@ -103,20 +119,47 @@ function switchToEdit() {
 
 
 function openEdit(id) {
+    console.log(id);
+    
   const t = tasks.find(x => x.id === id);
+  console.log(t);
+  
   if (!t) return;
   currentEditId = id;
   document.getElementById('edit-id').value = id;
   document.getElementById('edit-title').value = t.title;
-  document.getElementById('edit-desc').value = t.desc;
-  document.getElementById('edit-due').value = t.due;
-  document.getElementById('edit-assigned').value = t.assigned;
-  document.getElementById('edit-status').value = t.status;
-  document.getElementById('edit-priority').value = t.priority;
-  updatePriorityBtns('.priority-options:first-of-type .priority-opt', t.priority, 'edit');
+  document.getElementById('edit-desc').value = t.description;
+  document.getElementById('edit-due').value = t.due_date;
+  document.getElementById('edit-assigned').value = t.assigned_to;
+  document.getElementById('edit-status').value = t.status.value;
+  document.getElementById('edit-priority').value = t.priority.value;
+  updatePriorityBtns('#edit-modal .priority-opt',t.priority.value);
   openModal('edit-modal');
 }
+function updatePriorityBtns(selector, priority) {
 
+    document.querySelectorAll(selector)
+        .forEach(btn => {
+
+            btn.classList.remove(
+                'sel-low',
+                'sel-medium',
+                'sel-high'
+            );
+
+            if (
+                btn.textContent
+                    .trim()
+                    .toLowerCase()
+                === priority.toLowerCase()
+            ) {
+
+                btn.classList.add(
+                    `sel-${priority}`
+                );
+            }
+        });
+}
 function setPriority(val) {
   document.getElementById('edit-priority').value = val;
   document.querySelectorAll('#edit-modal .priority-opt').forEach(b => {
@@ -125,20 +168,6 @@ function setPriority(val) {
   });
 }
 
-function saveTask() {
-  const id = parseInt(document.getElementById('edit-id').value);
-  const t = tasks.find(x => x.id === id);
-  if (!t) return;
-  t.title = document.getElementById('edit-title').value;
-  t.desc = document.getElementById('edit-desc').value;
-  t.due = document.getElementById('edit-due').value;
-  t.assigned = document.getElementById('edit-assigned').value;
-  t.status = document.getElementById('edit-status').value;
-  t.priority = document.getElementById('edit-priority').value;
-  t.ai = `Updated: ${t.title}. Priority: ${t.priority}. Assigned to ${t.assigned}. Due ${t.due}.`;
-  closeModal('edit-modal');
-  filterTasks();
-}
 
 
 function openNew() {
@@ -154,12 +183,24 @@ function openNew() {
   openModal('new-task-modal');
 }
 
-function setNewPriority(val) {
-  document.getElementById('new-priority').value = val;
-  document.querySelectorAll('#new-task-modal .priority-opt').forEach(b => {
-    b.className = 'priority-opt';
-    if (b.textContent === val) b.classList.add('sel-' + val.toLowerCase());
-  });
+function setNewPriority(priority) {
+
+    document.getElementById(
+        'new-priority'
+    ).value = priority;
+    document.querySelectorAll(
+        '#new-task-modal .priority-opt'
+    ).forEach(btn => {
+        btn.classList.remove(
+            'sel-low','sel-medium','sel-high'
+        );
+        if (btn.textContent.toLowerCase()=== priority
+        ) {
+            btn.classList.add(
+                `sel-${priority}`
+            );
+        }
+    });
 }
 
 
@@ -246,8 +287,8 @@ function fetchAndRenderTasks() {
   .then(data => {
     if (data.data) {
         console.log('Fetched tasks:', data.data);
-      tasks = data.data; // Update the global tasks array
-      renderTasks(tasks); // Render the tasks
+      tasks = data.data; 
+      renderTasks(tasks); 
     } else {
       console.error('Error fetching tasks:', data.error || 'Unknown error');
     }
@@ -262,9 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ── Add Task to Grid ── */
 function addTaskToGrid(task) {
-  const pClass = task.priority === 'High' ? 'badge-red' : task.priority === 'Medium' ? 'badge-yellow' : 'badge-green';
-  const sClass = task.status === 'Completed' ? 'badge-green' : 'badge-blue';
-  const pfClass = task.priority === 'High' ? 'priority-high' : task.priority === 'Medium' ? 'priority-medium' : 'priority-low';
+  const pClass = task.priority.value;
+  const sClass = task.status.value;
+  const pfClass = task.priority.value;
 
   const taskCard = `<div class="task-card" data-id="${task.id}">
     <div class="task-card-header">
@@ -275,8 +316,8 @@ function addTaskToGrid(task) {
     </div>
     <div class="task-title">${task.title}</div>
     <div class="task-badges">
-      <span class="badge ${sClass}">${task.status || 'In Progress'}</span>
-      <span class="badge ${pClass}">Priority ${task.priority}</span>
+      <span class="badge ${sClass}">${task.status.label || 'In Progress'}</span>
+      <span class="badge ${pClass}">Priority ${task.priority.label}</span>
     </div>
     <div class="task-desc">${(task.description || '').substring(0, 90)}…</div>
     <div class="task-meta">

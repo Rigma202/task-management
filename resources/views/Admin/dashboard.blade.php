@@ -233,9 +233,9 @@
     <div class="field-group">
       <div class="field-label">Priority</div>
       <div class="priority-options">
-        <button class="priority-opt" onclick="setPriority('Low')">Low</button>
-        <button class="priority-opt" onclick="setPriority('Medium')">Medium</button>
-        <button class="priority-opt" onclick="setPriority('High')">High</button>
+        <button class="priority-opt" onclick="setPriority('low')">Low</button>
+        <button class="priority-opt" onclick="setPriority('medium')">Medium</button>
+        <button class="priority-opt" onclick="setPriority('high')">High</button>
       </div>
       <input type="hidden" id="edit-priority" value="Low">
     </div>
@@ -250,9 +250,9 @@
     <div class="field-group">
       <div class="field-label">Status</div>
       <select class="field-input" id="edit-status">
-        <option>In Progress</option>
-        <option>Completed</option>
-        <option>Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
       </select>
     </div>
     <div class="modal-footer">
@@ -281,9 +281,9 @@
     <div class="field-group">
       <div class="field-label">Priority</div>
       <div class="priority-options">
-        <button class="priority-opt sel-low" onclick="setNewPriority('Low')">Low</button>
-        <button class="priority-opt" onclick="setNewPriority('Medium')">Medium</button>
-        <button class="priority-opt" onclick="setNewPriority('High')">High</button>
+        <button class="priority-opt sel-low" onclick="setNewPriority('low')">Low</button>
+        <button class="priority-opt" onclick="setNewPriority('medium')">Medium</button>
+        <button class="priority-opt" onclick="setNewPriority('high')">High</button>
       </div>
       <input type="hidden" id="new-priority" value="Low">
     </div>
