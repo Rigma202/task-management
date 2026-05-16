@@ -51,7 +51,7 @@
       <div class="topbar-right">
         <button class="btn btn-primary" onclick="openNew()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          + New Task
+          New Task
         </button>
       </div>
     </div>
@@ -110,7 +110,9 @@
           <div class="panel-user">
             <div class="user-avatar" style="width:40px;height:40px;font-size:15px">A</div>
             <div class="panel-user-info">
-              <div class="name">Admin User</div>
+              @auth
+                <div class="name">{{ auth()->user()->name }}</div>
+              @endauth
               <div class="role">Administrator</div>
             </div>
           </div>
@@ -118,7 +120,13 @@
             <div class="panel-nav-item active">Tasks</div>
             <div class="panel-nav-item">Users <span class="only-admin">(Admin only)</span></div>
           </div>
-          <button class="logout-btn">⬡ Logout</button>
+<form method="POST" action="{{ route('logout') }}">
+    @csrf
+
+    <button type="submit" class="logout-btn flex items-center gap-2">
+        <span>Sign Out</span>
+    </button>
+</form>
         </div>
 
         <div class="panel-card">
@@ -262,7 +270,7 @@
 <div class="modal-overlay" id="new-task-modal">
   <div class="modal" style="max-width:460px">
     <div class="modal-header">
-      <div class="modal-title">+ New Task</div>
+      <div class="modal-title">New Task</div>
       <button class="modal-close" onclick="closeModal('new-task-modal')">✕</button>
     </div>
     <div class="field-group">
