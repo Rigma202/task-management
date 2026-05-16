@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-
+use App\Models\User;
 class ProfileController extends Controller
 {
     /**
@@ -17,7 +17,8 @@ class ProfileController extends Controller
     public function index(Request $request): View
     {
         if(Auth::check() && Auth::user()->role=='admin'){
-            return view('Admin.dashboard');
+             $users = User::where('role', 'user')->get();
+             return view('Admin.dashboard', compact('users'));
 
         }else if(Auth::check() && Auth::user()->role=='user'){
             return view('dashboard');

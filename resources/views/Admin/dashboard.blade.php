@@ -60,23 +60,19 @@
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-label">Total Tasks</div>
-        <div class="stat-value blue">150</div>
-        <div class="stat-sub">All time</div>
+        <div class="stat-value blue" id="total-tasks-count">0</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Completed</div>
-        <div class="stat-value green">90</div>
-        <div class="stat-sub">60% done</div>
+        <div class="stat-value green" id="completed-tasks-count">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">In Progress</div>
-        <div class="stat-value yellow">90</div>
-        <div class="stat-sub">Active now</div>
+        <div class="stat-label">Pending Task</div>
+        <div class="stat-value yellow" id="pending-tasks-count">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Overdue</div>
-        <div class="stat-value red">12</div>
-        <div class="stat-sub">Needs attention</div>
+        <div class="stat-label">High Priority Task</div>
+        <div class="stat-value red" id="high-priority-tasks-count">0</div>
       </div>
     </div>
 
@@ -276,6 +272,7 @@
     <div class="field-group">
       <div class="field-label">Task Title</div>
       <input class="field-input" type="text" id="new-title" placeholder="e.g. Launch New Campaign">
+    <div class="error-message" id="title-error" style="display:none;color:#ef4444;font-size:12px;margin-top:6px;">Please enter a task title</div>
     </div>
     <div class="field-group">
       <div class="field-label">Description</div>
@@ -295,8 +292,12 @@
       <input class="field-input" type="date" id="new-due">
     </div>
     <div class="field-group">
-      <div class="field-label">Assigned To</div>
-      <input class="field-input" type="text" id="new-assigned" placeholder="Team member name">
+    <select class="field-input" id="new-assigned">
+    <option value="">Select person to assign task</option>
+    @foreach($users as $user)
+        <option value="{{ $user->id }}">{{ $user->name }}</option>
+    @endforeach
+    </select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('new-task-modal')">Cancel</button>
@@ -305,5 +306,6 @@
   </div>
 </div>
 <script src="{{ asset('js/admin-dashboard.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 </body>
 </html>
