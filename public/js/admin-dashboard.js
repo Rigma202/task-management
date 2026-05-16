@@ -96,7 +96,21 @@ function renderBarChart() {
     </div>`;
   }).join('');
 }
-
+document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+        const today =
+            new Date()
+                .toISOString()
+                .split('T')[0];
+        document.getElementById(
+            'new-due'
+        ).min = today;
+        document.getElementById(
+            'edit-due'
+        ).min = today;
+    }
+);
 
 function openView(id) {
   const t = tasks.find(x => x.id === id);
@@ -140,26 +154,20 @@ function updatePriorityBtns(selector, priority) {
 
     document.querySelectorAll(selector)
         .forEach(btn => {
-
             btn.classList.remove(
                 'sel-low',
                 'sel-medium',
                 'sel-high'
             );
-
-            if (
-                btn.textContent
+            if (btn.textContent
                     .trim()
                     .toLowerCase()
                 === priority.toLowerCase()
-            ) {
-
-                btn.classList.add(
-                    `sel-${priority}`
-                );
+            ) {btn.classList.add(`sel-${priority}`);
             }
         });
 }
+
 function setPriority(val) {
   document.getElementById('edit-priority').value = val;
   document.querySelectorAll('#edit-modal .priority-opt').forEach(b => {
@@ -274,7 +282,7 @@ function createTask() {
   });
 }
 
-/* ── Fetch and Render Tasks ── */
+
 function fetchAndRenderTasks() {
   fetch(`${API_BASE}/tasks`, {
     method: 'GET',
@@ -296,9 +304,8 @@ function fetchAndRenderTasks() {
   .catch(error => console.error('Error:', error));
 }
 
-/* ── Initialize Task List on Page Load ── */
 document.addEventListener('DOMContentLoaded', () => {
-  fetchAndRenderTasks(); // Fetch and render tasks on page load
+  fetchAndRenderTasks(); 
 });
 
 /* ── Add Task to Grid ── */
@@ -353,57 +360,70 @@ function resetNewTaskForm() {
 
 
 function saveTask() {
+  
   const id = parseInt(document.getElementById('edit-id').value);
   const title = document.getElementById('edit-title').value;
   const desc = document.getElementById('edit-desc').value;
   const due = document.getElementById('edit-due').value;
   const status = document.getElementById('edit-status').value;
   const priority = document.getElementById('edit-priority').value;
+  const assigned = document.getElementById('edit-assigned').value.trim();   
+console.log(id, title, desc, due, status, priority,assigned);
+    $.ajax({
+        url: `${API_BASE}/tasks/${id}`,
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+            'Accept': 'application/json'
+        },
+        data: {
+            _method: 'PATCH',
+            title: title,
+            description: desc,
+            due_date: due,
+            status: status,
+            priority: priority,
+            assigned_to: assigned
+        },
 
-  fetch(`${API_BASE}/tasks/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': CSRF_TOKEN,
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      title,
-      description: desc,
-      due_date: due,
-      status,
-      priority
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.data) {
-      alert('Task updated successfully!');
-      closeModal('edit-modal');
-      location.reload(); // Refresh tasks
-    } else {
-      alert('Error: ' + (data.error || 'Unknown error'));
-    }
-  })
-  .catch(error => console.error('Error:', error));
+        success: function(response) {
+            alert('Task updated successfully!');
+            closeModal('edit-modal');
+            fetchAndRenderTasks();
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            alert('Unable to update task.');
+        }
+    });
 }
 
-/* ── Delete Task via AJAX ── */
 function deleteTask(id) {
-  if (!confirm('Delete this task?')) return;
 
-  fetch(`${API_BASE}/tasks/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'X-CSRF-TOKEN': CSRF_TOKEN,
-      'Accept': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    alert('Task deleted successfully!');
-    document.querySelector(`[data-id="${id}"]`)?.remove();
-  })
-  .catch(error => console.error('Error:', error));
+    if (!confirm('Delete this task?')
+    ) { return;}
+    $.ajax({
+        url: `${API_BASE}/tasks/${id}`,
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+            'Accept': 'application/json'
+        },
+        data: {
+            _method: 'DELETE'
+        },
+        success: function(response) {
+              alert('Task deleted successfully!');
+            document
+                .querySelector(`[data-id="${id}"]`)?.remove();
+            fetchAndRenderTasks();
+        },
+        error: function(xhr) {
+            alert(
+                'Unable to delete task.'
+            );
+        }
+    });
 }
+
 

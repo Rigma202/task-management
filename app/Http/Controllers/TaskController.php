@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\TaskResource;
 use App\Http\Requests\TaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 class TaskController extends Controller
 {
     public function __construct(private TaskService $taskService) {}
@@ -52,16 +53,9 @@ class TaskController extends Controller
         }
     }
 
-    public function update(Request $request, int $id)
+    public function update(UpdateTaskRequest $request, int $id)
     {
-        $validated = $request->validate([
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'priority' => 'nullable|in:Low,Medium,High',
-            'status' => 'nullable|in:In Progress,Completed,Pending',
-            'due_date' => 'nullable|date',
-        ]);
-
+        $validated = $request->validated();
         try {
             $task = $this->taskService->updateTask($id, $validated);
 

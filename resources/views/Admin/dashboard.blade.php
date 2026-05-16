@@ -245,7 +245,12 @@
     </div>
     <div class="field-group">
       <div class="field-label">Assigned To</div>
-      <input class="field-input" type="text" id="edit-assigned" placeholder="Team member name">
+      <select class="field-input" id="edit-assigned">
+        <option value="">Select person to assign task</option>
+        @foreach($users as $user)
+            <option value="{{ $user->id }}">{{ $user->name }}</option>
+        @endforeach
+      </select>
     </div>
     <div class="field-group">
       <div class="field-label">Status</div>

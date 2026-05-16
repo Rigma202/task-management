@@ -29,7 +29,12 @@ class TaskResource extends JsonResource
             ],
             'due_date' => $this->due_date,
             'assigned_to' => $this->assigned_to,
-
+    
+            'user' => [
+                'id' => $this->user?->id,
+                'name' => $this->user?->name,
+                'email' => $this->user?->email,
+            ],
         ];
     }
 }

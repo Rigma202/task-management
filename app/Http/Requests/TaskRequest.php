@@ -35,7 +35,7 @@ class TaskRequest extends FormRequest
 
             'due_date' => [
                 'required',
-                'date'
+                'date','after_or_equal:today'
             ],
 
             'assigned_to' => [
