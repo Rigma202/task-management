@@ -68,21 +68,6 @@ php artisan serve
  AI Integration
 
 AI is triggered inside `TaskService` which calls `AIService`. It is **never called directly from the controller**.
-
-Prompt sent to AI:**
-
-```
-Given the following task:
-Title: {title}
-Description: {description}
-
-1. Write a short 1-2 sentence summary of this task.
-2. Suggest a priority level: low, medium, or high.
-
-Respond in JSON format:
-{ "ai_summary": "...", "ai_priority": "low|medium|high" }
-```
-
 > If no API key is set, a mock response is returned automatically.
 
 ---
@@ -116,7 +101,3 @@ Features
 - [x] Laravel Policies for security
 
 ---
-
-## 📄 License
-
-This project was built as part of a Laravel Senior Developer Machine Test.
