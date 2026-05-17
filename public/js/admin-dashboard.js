@@ -44,7 +44,7 @@ function renderTasks(list) {
     return `<div class="task-card" data-id="${t.id}">
       <div class="task-card-header">
 
-        <div class="task-menu" onclick="openMenu(event,${t.id})">···</div>
+        <div class="task-menu" onclick="deleteTask(${t.id})">···</div>
       </div>
       <div class="task-title">${t.title}</div>
       <div class="task-badges">
@@ -378,7 +378,7 @@ function addTaskToGrid(task) {
       <div class="task-status-dot">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <div class="task-menu" onclick="openMenu(event,${task.id})">···</div>
+      <div class="task-menu" onclick="deleteTask(${task.id})">···</div>
     </div>
     <div class="task-title">${task.title}</div>
     <div class="task-badges">
@@ -428,62 +428,108 @@ function saveTask() {
   const priority = document.getElementById('edit-priority').value;
   const assigned = document.getElementById('edit-assigned').value.trim();
 
-    $.ajax({
-        url: `${API_BASE}/tasks/${id}`,
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': CSRF_TOKEN,
-            'Accept': 'application/json'
-        },
-        data: {
-            _method: 'PATCH',
-            title: title,
-            description: desc,
-            due_date: due,
-            status: status,
-            priority: priority,
-            assigned_to: assigned
-        },
+  $.ajax({
+    url: `${API_BASE}/tasks/${id}`,
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': CSRF_TOKEN,
+      'Accept': 'application/json'
+    },
+    data: {
+      _method: 'PATCH',
+      title: title,
+      description: desc,
+      due_date: due,
+      status: status,
+      priority: priority,
+      assigned_to: assigned
+    },
 
-        success: function(response) {
-            alert('Task updated successfully!');
-            closeModal('edit-modal');
-            fetchAndRenderTasks();
-        },
-        error: function(xhr) {
-            console.error(xhr);
-            alert('Unable to update task.');
-        }
-    });
+    success: function(response) {
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated',
+        text: 'Task updated successfully!',
+        timer: 1800,
+        showConfirmButton: false
+      });
+      closeModal('edit-modal');
+      fetchAndRenderTasks();
+    },
+    error: function(xhr) {
+      let message = 'Unable to update task.';
+      if (xhr.responseJSON?.errors) {
+
+        message = Object.values(
+          xhr.responseJSON.errors
+        )[0][0];
+
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: message
+      });
+
+    }
+
+  });
+
 }
 
 function deleteTask(id) {
 
-    if (!confirm('Delete this task?')
-    ) { return;}
+  Swal.fire({
+    title: 'Delete Task?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#d33'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
     $.ajax({
-        url: `${API_BASE}/tasks/${id}`,
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': CSRF_TOKEN,
-            'Accept': 'application/json'
-        },
-        data: {
-            _method: 'DELETE'
-        },
-        success: function(response) {
-              alert('Task deleted successfully!');
-            document
-                .querySelector(`[data-id="${id}"]`)?.remove();
-            fetchAndRenderTasks();
-        },
-        error: function(xhr) {
-            alert(
-                'Unable to delete task.'
-            );
-        }
+      url: `${API_BASE}/tasks/${id}`,
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': CSRF_TOKEN,
+        'Accept': 'application/json'
+      },
+      data: {
+        _method: 'DELETE'
+      },
+      success: function(response) {
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted',
+          text: 'Task deleted successfully!',
+          timer: 1800,
+          showConfirmButton: false
+        });
+        document
+          .querySelector(`[data-id="${id}"]`)
+          ?.remove();
+        fetchAndRenderTasks();
+      },
+      error: function(xhr) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Delete Failed',
+          text: 'Unable to delete task.'
+        });
+
+      }
+
     });
+
+  });
+
 }
+
 
 let taskChartInstance = null;
 
