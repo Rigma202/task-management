@@ -28,13 +28,13 @@ class TaskResource extends JsonResource
                 'label' => $this->priority->label(),
             ],
             'due_date' => $this->due_date,
-            'assigned_to' => $this->assigned_to,
-    
-            'user' => [
+            'assigned_to' => [
                 'id' => $this->user?->id,
                 'name' => $this->user?->name,
                 'email' => $this->user?->email,
             ],
+            'ai_summary' => $this->ai_summary,
+            'ai_priority' => $this->ai_priority,
         ];
     }
 }

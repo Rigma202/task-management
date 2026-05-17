@@ -22,6 +22,8 @@ class Task extends Model
         'status' => TaskStatus::class,
 
         'priority' => TaskPriority::class,
+              
+        'ai_priority' => TaskPriority::class,
     ];
     public function user()
     {

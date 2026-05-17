@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'ai' => [
+        'driver' => env('AI_DRIVER', 'mock'), 
+    ],
+    'gemini' => [
+    'key' => env('GEMINI_API_KEY'),
+],
+
 ];

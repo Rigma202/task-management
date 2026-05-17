@@ -167,13 +167,55 @@
   </div>
 
   <!-- Analytics View (placeholder) -->
-  <div id="view-analytics" style="display:none">
-    <div class="topbar"><div class="page-title">Analytics <span>Overview</span></div></div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:40px;text-align:center;color:var(--text-muted)">
-      <div style="font-size:40px;margin-bottom:12px">📊</div>
-      <div style="font-size:16px;font-weight:600;color:var(--text-secondary)">Analytics coming soon</div>
+  <div id="view-analytics" class="analytics-page" style="display:none">
+
+  <div class="topbar">
+    <div class="page-title">
+      Analytics <span>Overview</span>
     </div>
   </div>
+
+  <!-- Stats Cards -->
+  <div class="analytics-grid">
+
+    <div class="analytics-card">
+      <div class="analytics-icon"></div>
+      <div class="analytics-value" id="total-tasks">0</div>
+      <div class="analytics-label">Total Tasks</div>
+    </div>
+
+    <div class="analytics-card">
+      <div class="analytics-icon"></div>
+      <div class="analytics-value" id="completed-tasks">0</div>
+      <div class="analytics-label">Completed Tasks</div>
+    </div>
+
+    <div class="analytics-card">
+      <div class="analytics-icon"></div>
+      <div class="analytics-value" id="pending-tasks">0</div>
+      <div class="analytics-label">Pending Tasks</div>
+    </div>
+
+    <div class="analytics-card">
+      <div class="analytics-icon"></div>
+      <div class="analytics-value" id="high-priority">0</div>
+      <div class="analytics-label">High Priority</div>
+    </div>
+
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card">
+
+    <div class="chart-title">
+      Monthly Task Completion
+    </div>
+
+    <canvas id="taskChart"></canvas>
+
+  </div>
+
+</div>
 
   <!-- Users View (placeholder) -->
   <div id="view-users" style="display:none">
@@ -200,6 +242,7 @@
       <div class="detail-field"><strong>Due Date:</strong> <span id="view-due"></span></div>
       <div class="detail-field" id="view-desc" style="margin-top:8px;line-height:1.65;color:var(--text-secondary);font-size:13px"></div>
     </div>
+    <div class="detail-field"><strong>AI priority:</strong> <span id="view-ai-priority"></span></div>
     <div class="field-group">
       <div class="ai-label">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -290,7 +333,7 @@
         <button class="priority-opt" onclick="setNewPriority('medium')">Medium</button>
         <button class="priority-opt" onclick="setNewPriority('high')">High</button>
       </div>
-      <input type="hidden" id="new-priority" value="Low">
+      <input type="hidden" id="new-priority" value="low">
     </div>
     <div class="field-group">
       <div class="field-label">Due Date</div>
@@ -312,5 +355,6 @@
 </div>
 <script src="{{ asset('js/admin-dashboard.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

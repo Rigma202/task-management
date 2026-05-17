@@ -121,8 +121,11 @@ function openView(id) {
   const sClass = t.status.value;
   document.getElementById('view-modal-badges').innerHTML =
     `<span class="badge ${sClass}">${t.status.label}</span><span class="badge ${pClass}">Priority ${t.priority.label}</span>`;
-  document.getElementById('view-assigned').textContent = t.assigned_to;
+  document.getElementById('view-assigned').textContent = t.assigned_to?.name;
   document.getElementById('view-due').textContent = t.due_date;
+  document.getElementById('view-desc').textContent = t.description;
+  document.getElementById('view-ai-priority').textContent = t.ai_priority|| 'No AI priority available';
+  document.getElementById('view-ai-summary').textContent = t.ai_summary || 'No AI summary available';
   openModal('view-modal');
 }
 
@@ -133,18 +136,15 @@ function switchToEdit() {
 
 
 function openEdit(id) {
-    console.log(id);
-    
+
   const t = tasks.find(x => x.id === id);
-  console.log(t);
-  
   if (!t) return;
   currentEditId = id;
   document.getElementById('edit-id').value = id;
   document.getElementById('edit-title').value = t.title;
   document.getElementById('edit-desc').value = t.description;
   document.getElementById('edit-due').value = t.due_date;
-  document.getElementById('edit-assigned').value = t.assigned_to;
+  document.getElementById('edit-assigned').value = t.assigned_to?.id;
   document.getElementById('edit-status').value = t.status.value;
   document.getElementById('edit-priority').value = t.priority.value;
   updatePriorityBtns('#edit-modal .priority-opt',t.priority.value);
@@ -220,12 +220,21 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 
 
 function showView(v) {
+
   ['tasks','analytics','users'].forEach(n => {
-    document.getElementById('view-' + n).style.display = n === v ? '' : 'none';
+    document.getElementById('view-' + n).style.display =
+      n === v ? '' : 'none';
   });
+
   document.querySelectorAll('.sidebar-link').forEach((el, i) => {
-    el.classList.toggle('active', ['tasks','analytics','users'][i] === v);
+    el.classList.toggle(
+      'active',
+      ['tasks','analytics','users'][i] === v
+    );
   });
+  if (v === 'analytics') {
+    loadAnalytics();
+  }
 }
 
 
@@ -270,7 +279,8 @@ function createTask() {
         closeModal('new-task-modal');
         addTaskToGrid(data.data);
         resetNewTaskForm();
-        window.location.reload(); 
+        getAISummary(data.data.id);
+         window.location.reload(); 
       } else {
         alert('Error: ' + (data.error || 'Unknown error'));
       }
@@ -282,6 +292,28 @@ function createTask() {
   });
 }
 
+function getAISummary(taskId)
+{
+    $.ajax({
+        url: `/api/tasks/${taskId}/ai-summary`,
+        method: 'GET',
+        success: function(response)
+        {
+            document.getElementById(
+                'result-ai-summary'
+            ).textContent = response.ai_summary;
+
+            document.getElementById(
+                'result-ai-priority'
+            ).textContent =
+                response.ai_priority?.label || 'No priority';
+        },
+        error: function(error)
+        {
+            console.error(error);
+        }
+    });
+}
 
 function fetchAndRenderTasks() {
   fetch(`${API_BASE}/tasks`, {
@@ -308,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchAndRenderTasks(); 
 });
 
-/* ── Add Task to Grid ── */
+
 function addTaskToGrid(task) {
   const pClass = task.priority.value;
   const sClass = task.status.value;
@@ -345,7 +377,7 @@ function addTaskToGrid(task) {
 }
 
 
-/* ── Reset New Task Form ── */
+
 function resetNewTaskForm() {
   document.getElementById('new-title').value = '';
   document.getElementById('new-desc').value = '';
@@ -424,6 +456,86 @@ function deleteTask(id) {
             );
         }
     });
+}
+
+let taskChartInstance = null;
+
+async function loadAnalytics() {
+
+  try {
+
+    const response = await fetch('/api/tasks/analytics');
+    const data = await response.json();
+    document.getElementById('total-tasks').textContent =
+      data.stats.total_tasks;
+    document.getElementById('completed-tasks').textContent =
+      data.stats.completed_tasks;
+    document.getElementById('pending-tasks').textContent =
+      data.stats.pending_tasks;
+    document.getElementById('high-priority').textContent =
+      data.stats.high_priority_tasks;
+    const monthNames = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    const monthlyData = Array(12).fill(0);
+
+    data.monthly_completion.forEach(item => {
+      monthlyData[item.month - 1] = item.total;
+    });
+
+    if (taskChartInstance) {
+      taskChartInstance.destroy();
+    }
+
+    taskChartInstance = new Chart(
+      document.getElementById('taskChart'),
+      {
+        type: 'line',
+
+        data: {
+          labels: monthNames,
+
+          datasets: [
+            {
+              label: 'Completed Tasks',
+              data: monthlyData,
+              borderWidth: 2,
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+
+options: {
+  responsive: true,
+  maintainAspectRatio: false,
+
+  plugins: {
+    legend: {
+      display: true
+    }
+  },
+
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        precision: 0
+      }
+    }
+  }
+}
+      }
+    );
+
+  } catch (error) {
+
+    console.error('Analytics load failed:', error);
+
+  }
+
 }
 
 

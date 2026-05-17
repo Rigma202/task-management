@@ -3,21 +3,24 @@
 namespace App\Services;
 
 use App\Repositories\TaskRepositoryInterface;
+use App\Jobs\GenerateTaskSummaryJob;
 use Illuminate\Support\Facades\DB;
 
 class TaskService
 {
     public function __construct(
         private TaskRepositoryInterface $taskRepository,
-
     ) {}
 
     public function store(array $data)
     {
-        return DB::transaction(function () use ($data) {
-            $task = $this->taskRepository->create($data);
-            return $this->taskRepository->find($task->id);
+        $task = DB::transaction(function () use ($data) {
+            return $this->taskRepository->create($data);
         });
+
+        GenerateTaskSummaryJob::dispatch($task);
+
+        return $task->load('user');
     }
 
     public function getAllTasks(array $filters = [])
@@ -32,12 +35,18 @@ class TaskService
 
     public function updateTask(int $id, array $data)
     {
-        return $this->taskRepository->update($id, $data);
+        $task = $this->taskRepository->update($id, $data);
+        GenerateTaskSummaryJob::dispatch($task);
+
+        return $task;
     }
 
     public function deleteTask(int $id)
     {
         return $this->taskRepository->delete($id);
     }
-
+    public function analytics()
+    {
+        return $this->taskRepository->analytics();
+    }
 }

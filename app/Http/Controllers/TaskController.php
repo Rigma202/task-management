@@ -23,7 +23,6 @@ class TaskController extends Controller
     {
 
         $validated = $request->validated();
-        $validated['user_id'] = Auth::id();
         try {
             $task = $this->taskService->store($validated);
 
@@ -87,18 +86,35 @@ class TaskController extends Controller
         }
     }
 
-    public function getAISummary(int $id)
+    public function aiSummary(int $id)
+    {
+        $task = $this->taskService->getTask($id);
+
+        return response()->json([
+
+            'task_id' => $task->id,
+
+            'title' => $task->title,
+
+            'ai_summary' => $task->ai_summary,
+            'ai_priority' => [
+
+                'value' => $task->ai_priority?->value,
+
+                'label' => $task->ai_priority?->label(),
+            ],
+        ]);
+    }
+    public function analytics()
     {
         try {
-            $task = $this->taskService->getTask($id);
+            return response()->json(
+                $this->taskService->analytics()
+            );
+        } catch (\Exception $e) {
 
             return response()->json([
-                'ai_summary' => $task->ai_summary,
-                'ai_tags' => $task->ai_tags ?? []
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to fetch AI summary',
+                'message' => 'Failed to load analytics',
                 'error' => $e->getMessage()
             ], 500);
         }
