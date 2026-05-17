@@ -1,72 +1,122 @@
-AI Task Management System
+Task Management System
 
-A production-ready AI-assisted Task Management System built with Laravel, following Repository Pattern, Service Layer Architecture, and clean coding practices.
+A Laravel-based Task Management System with AI-powered summaries, role-based access, and clean Repository Pattern architecture.
 
-Features
-Authentication & Role Management (Admin / User)
-Task CRUD Operations
-AI-generated Task Summary & Priority
-Repository Pattern Implementation
-Service Layer Architecture
-Dashboard Analytics
-REST API Support
-Responsive UI with Tailwind CSS
-Task Policies & Authorization
-Tech Stack
-Laravel 12
-MySQL
-Blade + Tailwind CSS
-Chart.js
-OpenAI/Gemini (Mocked AI Service)
-Architecture
+---
+
+ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Laravel 10+ |
+| Database | MySQL |
+| Frontend | Blade + Tailwind CSS |
+| AI | OpenAI / Gemini / Claude (mock fallback) |
+| Auth | Laravel Breeze |
+
+---
+
+Project Structure
+
+```
 app/
 ├── Http/
+│   ├── Controllers/       # Thin controllers only
+│   ├── Requests/          # Form validation
+│   └── Resources/         # API response formatting
 ├── Models/
 ├── Repositories/
+│   ├── Contracts/         # TaskRepositoryInterface
+│   └── Eloquent/          # TaskRepository
 ├── Services/
-├── Policies/
-├── Enums/
+│   ├── TaskService.php    # Business logic
+│   └── AIService.php      # AI prompt & response
+├── Policies/              # Role-based access
+├── Enums/                 # Status & Priority enums
 └── Providers/
-Repository Pattern
-Controllers never directly access models.
-All database operations are handled through repositories.
-Service Layer
-Business logic handled inside services.
-AI processing triggered via AIService.
-AI Integration
+    └── RepositoryServiceProvider.php
 
-AI is used to:
 
-Generate short task summaries
-Predict task priority
+ Setup Instructions
 
-Example Prompt:
+```bash
+# 1. Clone the repo
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
 
-Analyze the following task and return:
-1. Short summary
-2. Priority level (low, medium, high)
-API Endpoints
-Method	Endpoint
-GET	/api/tasks
-POST	/api/tasks
-PATCH	/api/tasks/{id}/status
-GET	/api/tasks/{id}/ai-summary
-Installation
-git clone <repo-url>
-
-cd project-name
-
+# 2. Install dependencies
 composer install
+npm install
 
+# 3. Environment setup
 cp .env.example .env
-
 php artisan key:generate
 
+# 4. Configure your database in .env, then run migrations
 php artisan migrate --seed
 
-npm install && npm run dev
+# 5. Add your AI key in .env
+OPENAI_API_KEY=your_key_here
 
+# 6. Start the app
+npm run dev
 php artisan serve
-Default Roles
-Admin → Full Access
-User → Assigned Tasks Only
+```
+
+---
+
+ AI Integration
+
+AI is triggered inside `TaskService` which calls `AIService`. It is **never called directly from the controller**.
+
+Prompt sent to AI:**
+
+```
+Given the following task:
+Title: {title}
+Description: {description}
+
+1. Write a short 1-2 sentence summary of this task.
+2. Suggest a priority level: low, medium, or high.
+
+Respond in JSON format:
+{ "ai_summary": "...", "ai_priority": "low|medium|high" }
+```
+
+> If no API key is set, a mock response is returned automatically.
+
+---
+
+API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tasks` | List all tasks |
+| POST | `/api/tasks` | Create a task |
+| PATCH | `/api/tasks/{id}/status` | Update task status |
+| GET | `/api/tasks/{id}/ai-summary` | Get AI summary |
+
+---
+
+Roles & Access
+
+| Role | What they can do |
+|------|-----------------|
+| **Admin** | View, create, edit, delete all tasks |
+| **User** | View and manage only assigned tasks |
+
+
+Features
+- [x] Repository Pattern with Interface binding
+- [x] Service Layer for business logic
+- [x] AI-generated task summary and priority
+- [x] Role-based access (Admin / User)
+- [x] REST API with proper status codes
+- [x] Form Request validation
+- [x] Laravel Policies for security
+
+---
+
+## 📄 License
+
+This project was built as part of a Laravel Senior Developer Machine Test.
