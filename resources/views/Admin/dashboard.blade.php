@@ -24,7 +24,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       <span>Analytics</span>
     </a>
-    
+
 </aside>
 
 <!-- ══ Main ══ -->
@@ -187,7 +187,7 @@
     </div>
     <div class="detail-row" id="view-modal-badges"></div>
     <div class="field-group">
-      
+
       <div class="detail-field"><strong>Assigned to:</strong> <span id="view-assigned"></span></div>
       <div class="detail-field"><strong>Due Date:</strong> <span id="view-due"></span></div>
       <div class="detail-field" id="view-desc" style="margin-top:8px;line-height:1.65;color:var(--text-secondary);font-size:13px"></div>
@@ -306,5 +306,6 @@
 <script src="{{ asset('js/admin-dashboard.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

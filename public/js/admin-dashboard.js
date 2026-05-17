@@ -22,7 +22,7 @@ const TASK_PRIORITY = {
 function renderTasks(list) {
   const grid = document.getElementById('task-grid');
   const totalTasks = list.length;
-  
+
   const completedTasks = list.filter(task => task.status.value === TASK_STATUS.COMPLETED).length;
   const inPendingTasks = list.filter(task => task.status.value === TASK_STATUS.PENDING).length;
   const highPriorityTasks = list.filter(task => task.priority.value === TASK_PRIORITY.HIGH).length;
@@ -43,7 +43,7 @@ function renderTasks(list) {
     const done = t.status.value === TASK_STATUS.COMPLETED;
     return `<div class="task-card" data-id="${t.id}">
       <div class="task-card-header">
-        
+
         <div class="task-menu" onclick="openMenu(event,${t.id})">···</div>
       </div>
       <div class="task-title">${t.title}</div>
@@ -181,7 +181,7 @@ function openNew() {
   document.getElementById('new-desc').value = '';
   document.getElementById('new-due').value = '';
   document.getElementById('new-assigned').value = '';
-  document.getElementById('new-priority').value = 'Low';
+  document.getElementById('new-priority').value = 'low';
   document.querySelectorAll('#new-task-modal .priority-opt').forEach(b => {
     b.className = 'priority-opt';
   });
@@ -252,41 +252,70 @@ function createTask() {
 
   if (!title) {
     titleError.style.display = 'block';
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Task title is required'
+    });
     return;
   }
   titleError.style.display = 'none';
 
- $.ajax({
+  $.ajax({
     url: `${API_BASE}/tasks`,
     method: 'POST',
     contentType: 'application/json; charset=utf-8',
     dataType: 'json',
     headers: {
-        'X-CSRF-TOKEN': CSRF_TOKEN
+      'X-CSRF-TOKEN': CSRF_TOKEN
     },
     data: JSON.stringify({
-        title,
-        description: desc,
-        priority,
-        due_date: due || null,
-        assigned_to: assigned || null
+      title,
+      description: desc,
+      priority,
+      due_date: due || null,
+      assigned_to: assigned || null
     }),
     success: function (data) {
       if (data.data) {
-        alert('Task created successfully!');
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Task created successfully!',
+          timer: 1800,
+          showConfirmButton: false
+        });
         closeModal('new-task-modal');
         addTaskToGrid(data.data);
         resetNewTaskForm();
         getAISummary(data.data.id);
-         window.location.reload(); 
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
-        alert('Error: ' + (data.error || 'Unknown error'));
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.error || 'Unknown error'
+        });
+
       }
+
     },
     error: function (response) {
+
       console.error('Error:', response);
-      alert('Unable to create task.');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Request Failed.Please fill all the fileds and try again',
+        text: 'Unable to create task.'
+      });
+
     }
+
   });
 }
 
@@ -325,8 +354,8 @@ function fetchAndRenderTasks() {
   .then(data => {
     if (data.data) {
         console.log('Fetched tasks:', data.data);
-      tasks = data.data; 
-      renderTasks(tasks); 
+      tasks = data.data;
+      renderTasks(tasks);
     } else {
       console.error('Error fetching tasks:', data.error || 'Unknown error');
     }
@@ -335,7 +364,7 @@ function fetchAndRenderTasks() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  fetchAndRenderTasks(); 
+  fetchAndRenderTasks();
 });
 
 
@@ -390,15 +419,15 @@ function resetNewTaskForm() {
 
 
 function saveTask() {
-  
+
   const id = parseInt(document.getElementById('edit-id').value);
   const title = document.getElementById('edit-title').value;
   const desc = document.getElementById('edit-desc').value;
   const due = document.getElementById('edit-due').value;
   const status = document.getElementById('edit-status').value;
   const priority = document.getElementById('edit-priority').value;
-  const assigned = document.getElementById('edit-assigned').value.trim();   
-console.log(id, title, desc, due, status, priority,assigned);
+  const assigned = document.getElementById('edit-assigned').value.trim();
+
     $.ajax({
         url: `${API_BASE}/tasks/${id}`,
         method: 'POST',
