@@ -24,21 +24,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       <span>Analytics</span>
     </a>
-    <div class="sidebar-label" style="margin-top:16px">Admin</div>
-    <a class="sidebar-link" onclick="showView('users')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span>Users</span>
-    </a>
-  </div>
-  <div class="sidebar-bottom">
-    <div class="user-info">
-      <div class="user-avatar">A</div>
-      <div>
-        <div class="user-name">Admin User</div>
-        <div class="user-role">Administrator</div>
-      </div>
-    </div>
-  </div>
+    
 </aside>
 
 <!-- ══ Main ══ -->
@@ -125,43 +111,7 @@
 </form>
         </div>
 
-        <div class="panel-card">
-          <div class="chart-section-label">Monthly Task Completion</div>
-          <div class="donut-row">
-            <div class="donut-item">
-              <svg class="donut" width="52" height="52" viewBox="0 0 52 52">
-                <circle class="donut-track" cx="26" cy="26" r="20"/>
-                <circle class="donut-fill" cx="26" cy="26" r="20" stroke="#3b82f6"
-                  stroke-dasharray="75.4 125.7"/>
-              </svg>
-              <div class="donut-value">150</div>
-              <div class="donut-label">Total</div>
-            </div>
-            <div class="donut-item">
-              <svg class="donut" width="52" height="52" viewBox="0 0 52 52">
-                <circle class="donut-track" cx="26" cy="26" r="20"/>
-                <circle class="donut-fill" cx="26" cy="26" r="20" stroke="#22c55e"
-                  stroke-dasharray="56.5 125.7"/>
-              </svg>
-              <div class="donut-value">90</div>
-              <div class="donut-label">Done</div>
-            </div>
-            <div class="donut-item">
-              <svg class="donut" width="52" height="52" viewBox="0 0 52 52">
-                <circle class="donut-track" cx="26" cy="26" r="20"/>
-                <circle class="donut-fill" cx="26" cy="26" r="20" stroke="#f59e0b"
-                  stroke-dasharray="45.2 125.7"/>
-              </svg>
-              <div class="donut-value">90</div>
-              <div class="donut-label">Progress</div>
-            </div>
-          </div>
-        </div>
 
-        <div class="panel-card">
-          <div class="chart-section-label">Monthly Completion</div>
-          <div class="bar-chart" id="bar-chart"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -237,7 +187,7 @@
     </div>
     <div class="detail-row" id="view-modal-badges"></div>
     <div class="field-group">
-      <div class="field-label">Description</div>
+      
       <div class="detail-field"><strong>Assigned to:</strong> <span id="view-assigned"></span></div>
       <div class="detail-field"><strong>Due Date:</strong> <span id="view-due"></span></div>
       <div class="detail-field" id="view-desc" style="margin-top:8px;line-height:1.65;color:var(--text-secondary);font-size:13px"></div>

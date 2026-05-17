@@ -43,9 +43,7 @@ function renderTasks(list) {
     const done = t.status.value === TASK_STATUS.COMPLETED;
     return `<div class="task-card" data-id="${t.id}">
       <div class="task-card-header">
-        <div class="task-status-dot ${done ? 'done' : ''}">
-          ${done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-        </div>
+        
         <div class="task-menu" onclick="openMenu(event,${t.id})">···</div>
       </div>
       <div class="task-title">${t.title}</div>
@@ -55,7 +53,7 @@ function renderTasks(list) {
       </div>
       <div class="task-desc">${t.description.substring(0, 90)}…</div>
       <div class="task-meta">
-        <span>👤 ${t.user?.name || 'Unassigned'}</span>
+        <span>👤 ${t.assigned_to?.name || 'Unassigned'}</span>
         <span>📅 Due ${t.due_date || '—'}</span>
       </div>
       <div class="task-footer">
@@ -120,7 +118,7 @@ function openView(id) {
   const pClass = t.priority.value;
   const sClass = t.status.value;
   document.getElementById('view-modal-badges').innerHTML =
-    `<span class="badge ${sClass}">${t.status.label}</span><span class="badge ${pClass}">Priority ${t.priority.label}</span>`;
+    `<span>${t.status.label}</span><span">Priority ${t.priority.label}</span>`;
   document.getElementById('view-assigned').textContent = t.assigned_to?.name;
   document.getElementById('view-due').textContent = t.due_date;
   document.getElementById('view-desc').textContent = t.description;
